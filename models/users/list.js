@@ -12,7 +12,7 @@ const listSchema = new mongoose.Schema({
   description: String,
   films: [
     {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Number,
       ref: "Film",
     },
   ],

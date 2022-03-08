@@ -7,6 +7,8 @@ const mongoose = require("mongoose");
 // routers
 const filmsRouter = require("./controllers/films");
 const loginRouter = require("./controllers/login");
+const personsRouter = require("./controllers/persons");
+const closeupsRouter = require("./controllers/closeups");
 
 // utils
 const config = require("./utils/config");
@@ -32,6 +34,8 @@ app.use(middleware.requestLogger);
 
 app.use("/api/films", filmsRouter);
 app.use("/api/login", loginRouter);
+app.use("/api/persons", personsRouter);
+app.use("/api/closeups", closeupsRouter);
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);

@@ -10,7 +10,7 @@ const reviewSchema = new mongoose.Schema({
   content: String,
   rating: Number,
   film: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Number,
     ref: "Film",
   },
   votes: Number,

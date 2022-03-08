@@ -4,7 +4,7 @@ const filmsRouter = require("express").Router();
 const Film = require("../models/films/film");
 const FilmMeta = require("../models/films/filmMeta");
 const List = require("../models/users/list");
-const Notebook = require("../models/users/notebook");
+const CloseUp = require("../models/closeups/closeup");
 const Review = require("../models/users/review");
 
 // middlewares
@@ -28,14 +28,18 @@ filmsRouter.get(
 );
 
 // search films by text
-filmsRouter.get("/search", tmdb.searchFilms, async (request, response) => {
-  const resultFetched = response.result;
-  const films = resultFetched.results.map((r) => Film.findById(r.id));
-  const newResults = await Promise.all(films);
-  resultFetched.results = newResults;
+filmsRouter.get(
+  "/search",
+  tmdb.searchTMDB("movie"),
+  async (request, response) => {
+    const resultFetched = response.result;
+    const films = resultFetched.results.map((r) => Film.findById(r.id));
+    const newResults = await Promise.all(films);
+    resultFetched.results = newResults;
 
-  response.json(resultFetched);
-});
+    response.json(resultFetched);
+  }
+);
 
 // get film by id
 filmsRouter.get(
@@ -58,17 +62,17 @@ filmsRouter.get(
     // const ratings =
     //   resultFetched.ratings * resultFetched.voteCount + meta.ratings;
 
-    const lists = await List.find({ "films.id": id })
+    const lists = await List.find({ films: id })
       .sort({
         followerCount: -1,
       })
       .limit(6);
-    const notebooks = await Notebook.find({ "films.id": id })
+    const closeups = await CloseUp.find({ films: id })
       .sort({
         followerCount: -1,
       })
       .limit(6);
-    const reviews = await Review.find({ "film.id": id })
+    const reviews = await Review.find({ film: id })
       .sort({
         votes: -1,
       })
@@ -84,7 +88,7 @@ filmsRouter.get(
       cast: cast,
       crew: crew,
       lists: lists,
-      notebooks: notebooks,
+      closeups: closeups,
       reviews: reviews,
       relatedFilms: newResults,
     };
@@ -110,18 +114,18 @@ filmsRouter.get(
 // get film lists
 filmsRouter.get(
   "/:id/lists",
-  middleware.queryListAndNotebook,
+  middleware.queryListAndCloseUp,
   middleware.pagination(List),
   async (request, response) => {
     response.json(response.paginatedResult);
   }
 );
 
-// get film notebooks
+// get film closeups
 filmsRouter.get(
-  "/:id/notebooks",
-  middleware.queryListAndNotebook,
-  middleware.pagination(Notebook),
+  "/:id/closeups",
+  middleware.queryListAndCloseUp,
+  middleware.pagination(CloseUp),
   async (request, response) => {
     response.json(response.paginatedResult);
   }
@@ -176,7 +180,7 @@ filmsRouter.post(
   }
 );
 
-// put film review
+// update film review
 filmsRouter.put(
   "/:filmID/reviews/reviewID",
   middleware.userExtractor,

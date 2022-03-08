@@ -1,6 +1,11 @@
 /* eslint-disable no-undef */
+const mongoose = require("mongoose");
+
+// utils
 const jwt = require("jsonwebtoken");
 const logger = require("./logger");
+
+const Film = require("../models/films/film");
 const User = require("../models/users/user");
 
 // config and error handling
@@ -75,14 +80,14 @@ const queryCloset = (request, response, next) => {
   next();
 };
 
-const queryListAndNotebook = (request, response, next) => {
+const queryListAndCloseUp = (request, response, next) => {
   if (request.query.sortBy) {
     request.sorted = { followerCount: -1 };
   } else {
     request.sorted = { lastModified: -1 };
   }
 
-  request.browsed = { "films.id": request.params.id };
+  request.browsed = { films: request.params.id };
 
   next();
 };
@@ -94,7 +99,14 @@ const queryReview = (request, response, next) => {
     request.sorted = { lastModified: -1 };
   }
 
-  request.browsed = { "film.id": request.params.id };
+  request.browsed = { film: mongoose.Types.ObjectId(request.params.id) };
+
+  next();
+};
+
+const queryCloseUp = (request, response, next) => {
+  request.sorted = { lastModified: -1 };
+  request.browsed = { series: request.params.name };
 
   next();
 };
@@ -166,6 +178,7 @@ const getCrew = (request, response, next) => {
     _id: c.id,
     name: c.name,
     job: c.job,
+    department: c.department,
     gender: c.gender,
     profilePicture: c.profile_path ? `${request.img}${c.profile_path}` : null,
   }));
@@ -181,16 +194,44 @@ const getCrew = (request, response, next) => {
   next();
 };
 
+const getCredits = async (request, response, next) => {
+  const cast = response.cast.map((c) => Film.findById(c.id));
+  const castMapped = await Promise.all(cast);
+  const character = response.cast.map((c) => c.character);
+  const castMappedFinal = castMapped.map((c, i) => {
+    if (c) c = { ...c._doc, character: character[i] };
+    return c;
+  });
+
+  const crew = response.crew.map((c) => Film.findById(c.id));
+  const crewMapped = await Promise.all(crew);
+  const job = response.crew.map((c) => c.job);
+  const crewMappedFinal = crewMapped.map((c, i) => {
+    if (c) c = { ...c._doc, job: job[i] };
+    return c;
+  });
+  const groupedJobs = {};
+  crewMappedFinal.forEach((c) => {
+    if (c) groupedJobs[c.job] = (groupedJobs[c.job] || []).concat(c);
+  });
+
+  response.credits = { Actor: castMappedFinal, ...groupedJobs };
+
+  next();
+};
+
 module.exports = {
   userExtractor,
   requestLogger,
   unknownEndpoint,
   errorHandler,
   queryCloset,
-  queryListAndNotebook,
+  queryListAndCloseUp,
   queryReview,
+  queryCloseUp,
   pagination,
   getShortCrew,
   getCast,
   getCrew,
+  getCredits,
 };

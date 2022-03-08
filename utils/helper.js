@@ -3,7 +3,7 @@ const schemaTransform = (schema, idToString = true) => {
     transform: (document, returnedObject) => {
       returnedObject.id = !idToString
         ? returnedObject._id
-        : returnedObject._id.ToString();
+        : returnedObject._id.toString();
       delete returnedObject._id;
       delete returnedObject.__v;
     },

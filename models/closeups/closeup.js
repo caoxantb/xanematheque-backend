@@ -1,19 +1,16 @@
 const mongoose = require("mongoose");
 const { schemaTransform } = require("../../utils/helper");
 
-const notebookSchema = new mongoose.Schema({
+const closeupSchema = new mongoose.Schema({
   title: String,
-  author: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  },
+  author: String,
+  series: String,
   lastModified: Date,
-  backdrop: String,
   description: String,
   content: String,
   films: [
     {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Number,
       ref: "Film",
     },
   ],
@@ -23,7 +20,7 @@ const notebookSchema = new mongoose.Schema({
       ref: "User",
     },
   ],
-  followersNumber: Number,
+  followerCount: Number,
   discussions: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -32,6 +29,6 @@ const notebookSchema = new mongoose.Schema({
   ],
 });
 
-schemaTransform(notebookSchema);
+schemaTransform(closeupSchema);
 
-module.exports = mongoose.model("Notebook", notebookSchema);
+module.exports = mongoose.model("CloseUp", closeupSchema);

@@ -39,16 +39,21 @@ const getFilmToPost = async (request, response, next) => {
   next();
 };
 
-const searchFilms = async (request, response, next) => {
-  const text = request.query.text;
-  const page = request.query.page || 1;
-  const resultFetched = await fetch(
-    `${URL}/search/movie?api_key=${TMDB_APIKEY}&query=${text}&page=${page}`
-  );
-  const resultJSON = await resultFetched.json();
-  response.result = resultJSON;
+const searchTMDB = (path) => {
+  return async (request, response, next) => {
+    const text = request.query.text;
+    const page = request.query.page || 1;
 
-  next();
+    const resultFetched = await fetch(
+      `${URL}/search/${path}?api_key=${TMDB_APIKEY}&query=${text}&page=${page}`
+    );
+    const resultJSON = await resultFetched.json();
+
+    request.img = IMG_PATH;
+    response.result = resultJSON;
+
+    next();
+  };
 };
 
 const getFilmMeta = async (request, response, next) => {
@@ -114,4 +119,35 @@ const getFilmCredit = async (request, response, next) => {
   next();
 };
 
-module.exports = { getFilmToPost, searchFilms, getFilmMeta, getFilmCredit };
+const getPersonMeta = async (request, response, next) => {
+  const id = request.params.id;
+
+  const personFetched = await fetch(
+    `${URL}/person/${id}?api_key=${TMDB_APIKEY}&append_to_response=movie_credits`
+  );
+  const personJSON = await personFetched.json();
+
+  const person = {
+    name: personJSON.name,
+    birthday: personJSON.birthday,
+    deathday: personJSON.deathday,
+    gender: personJSON.gender,
+    biography: personJSON.biography,
+    profilePicture: `${IMG_PATH}${personJSON.profile_path}`,
+  };
+
+  request.img = IMG_PATH;
+  response.cast = personJSON.movie_credits.cast;
+  response.crew = personJSON.movie_credits.crew;
+  response.result = person;
+
+  next();
+};
+
+module.exports = {
+  getFilmToPost,
+  searchTMDB,
+  getFilmMeta,
+  getFilmCredit,
+  getPersonMeta,
+};
