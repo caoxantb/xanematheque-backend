@@ -54,7 +54,9 @@ filmsRouter.get(
       response.cast.length > 6 ? response.cast.slice(0, 6) : response.cast;
     const crew = response.crew;
 
-    const films = resultFetched.relatedFilms.map((r) => Film.findById(r.id));
+    const films = resultFetched.relatedFilms.map((r) =>
+      Film.findById(r.id).select("title director.name year")
+    );
     const newResults = await Promise.all(films);
 
     // const meta = await FilmMeta.findById(id);
@@ -66,17 +68,20 @@ filmsRouter.get(
       .sort({
         followerCount: -1,
       })
-      .limit(6);
+      .limit(6)
+      .select("title author backdrop lastModified description");
     const closeups = await CloseUp.find({ films: id })
       .sort({
         followerCount: -1,
       })
-      .limit(6);
+      .limit(6)
+      .select("title author series lastModified description");
     const reviews = await Review.find({ film: id })
       .sort({
         votes: -1,
       })
-      .limit(12);
+      .limit(12)
+      .select("author rating content");
 
     const finalResult = {
       ...resultFetched,
@@ -180,9 +185,15 @@ filmsRouter.post(
   }
 );
 
+//get one film review
+filmsRouter.get("/:filmID/reviews/:reviewID", async (request, response) => {
+  const review = Review.findById(request.params.reviewID);
+  response.json(review);
+});
+
 // update film review
 filmsRouter.put(
-  "/:filmID/reviews/reviewID",
+  "/:filmID/reviews/:reviewID",
   middleware.userExtractor,
   async (request, response) => {
     const body = request.body;
@@ -217,7 +228,7 @@ filmsRouter.put(
 
 // delete film review
 filmsRouter.delete(
-  "/:filmID/reviews/reviewID",
+  "/:filmID/reviews/:reviewID",
   middleware.userExtractor,
   async (request, response) => {
     const filmID = request.params.filmID;

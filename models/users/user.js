@@ -15,10 +15,12 @@ const userSchema = new mongoose.Schema({
       ref: "Review",
     },
   ],
-  watchlist: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "List",
-  },
+  watchlist: [
+    {
+      type: Number,
+      ref: "Film",
+    },
+  ],
   lists: [
     {
       type: mongoose.Schema.Types.ObjectId,

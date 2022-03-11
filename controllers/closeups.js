@@ -6,6 +6,7 @@ const CloseUp = require("../models/closeups/closeup");
 // middlewares
 const middleware = require("../utils/middleware");
 
+// get Close-Up post by series
 closeupsRouter.get(
   "/series/:name",
   middleware.queryCloseUp,
@@ -15,6 +16,7 @@ closeupsRouter.get(
   }
 );
 
+// get Close-Up post by author
 closeupsRouter.get(
   "/author/:name",
   middleware.queryCloseUp,
@@ -23,11 +25,13 @@ closeupsRouter.get(
     response.json(response.paginatedResult);
   }
 );
+
 closeupsRouter.get("/:id", async (request, response) => {
-  const post = CloseUp.findById({ id: request.params.id });
+  const post = await CloseUp.findById(request.params.id).populate("films");
   response.json(post);
 });
 
+// post to Close-Up - RESERVED FOR ADMIN ONLY
 closeupsRouter.post("/", async (request, response) => {
   const body = request.body;
 
