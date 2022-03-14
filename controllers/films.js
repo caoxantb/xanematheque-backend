@@ -3,8 +3,8 @@ const filmsRouter = require("express").Router();
 // models
 const Film = require("../models/films/film");
 const FilmMeta = require("../models/films/filmMeta");
-const List = require("../models/users/list");
-const CloseUp = require("../models/closeups/closeup");
+const List = require("../models/admin/list");
+const CloseUp = require("../models/admin/closeup");
 const Review = require("../models/users/review");
 
 // middlewares

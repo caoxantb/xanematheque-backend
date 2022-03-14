@@ -3,10 +3,7 @@ const { schemaTransform } = require("../../utils/helper");
 
 const listSchema = new mongoose.Schema({
   title: String,
-  author: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  },
+  author: String,
   lastModified: Date,
   backdrop: String,
   description: String,
@@ -16,6 +13,7 @@ const listSchema = new mongoose.Schema({
       ref: "Film",
     },
   ],
+  filmsExpansion: [String],
   followers: [
     {
       type: mongoose.Schema.Types.ObjectId,

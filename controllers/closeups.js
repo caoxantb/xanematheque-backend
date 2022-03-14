@@ -1,7 +1,7 @@
 const closeupsRouter = require("express").Router();
 
 // models
-const CloseUp = require("../models/closeups/closeup");
+const CloseUp = require("../models/admin/closeup");
 
 // middlewares
 const middleware = require("../utils/middleware");
@@ -27,7 +27,12 @@ closeupsRouter.get(
 );
 
 closeupsRouter.get("/:id", async (request, response) => {
-  const post = await CloseUp.findById(request.params.id).populate("films");
+  const post = await CloseUp.findById(request.params.id).populate("films", {
+    title: 1,
+    director: 1,
+    backdrop: 1,
+    year: 1,
+  });
   response.json(post);
 });
 
