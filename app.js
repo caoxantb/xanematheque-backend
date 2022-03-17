@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 
 // routers
 const filmsRouter = require("./controllers/films");
-const loginRouter = require("./controllers/login");
+const authRouter = require("./controllers/auth");
 const personsRouter = require("./controllers/persons");
 const closeupsRouter = require("./controllers/closeups");
 const usersRouter = require("./controllers/users");
@@ -35,7 +35,7 @@ app.use(express.json());
 app.use(middleware.requestLogger);
 
 app.use("/api/films", filmsRouter);
-app.use("/api/login", loginRouter);
+app.use("/api/auth", authRouter);
 app.use("/api/persons", personsRouter);
 app.use("/api/closeups", closeupsRouter);
 app.use("/api/lists", listsRouter);
