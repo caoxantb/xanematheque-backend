@@ -21,7 +21,7 @@ router.post("/signup", async (request, response) => {
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     return response.status(400).json({
-      error: "username must be unique",
+      error: "email already registered",
     });
   }
 
@@ -34,9 +34,20 @@ router.post("/signup", async (request, response) => {
     passwordHash,
   });
 
-  const savedUser = await user.save();
+  await user.save();
 
-  response.status(201).json(savedUser);
+  const userForToken = {
+    email: user.email,
+    id: user._id,
+  };
+
+  const token = jwt.sign(userForToken, process.env.SECRET, {
+    expiresIn: 60 * 60 * 24 * 7,
+  });
+
+  response
+    .status(200)
+    .send({ token, email: user.email, fullName: user.fullName });
 });
 
 // login
